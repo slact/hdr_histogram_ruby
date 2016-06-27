@@ -48,8 +48,7 @@ static VALUE histogram_count(VALUE self) {
 
 static VALUE histogram_record_value(VALUE self, VALUE val) {
   GET_HDRHIST(hdr, self);
-  bool success = hdr_record_value(hdr, NUM2INT(val));
-  return success ? self : Qfalse;
+  return hdr_record_value(hdr, NUM2INT(val)) ? Qtrue : Qfalse;
 }
 
 static VALUE generic_histogram_intval(VALUE self, int64_t func(const struct hdr_histogram *) ) {
@@ -102,12 +101,11 @@ HISTOGRAM_GETINT_METHOD(bucket_count)
 HISTOGRAM_GETINT_METHOD(sub_bucket_count)
 HISTOGRAM_GETINT_METHOD(counts_len)
 
-
-void Init_HDRHistogram() {
+void Init_ruby_hdr_histogram() {
   HDRHistogram = rb_define_class("HDRHistogram", rb_cObject);
   HDRHistogramError = rb_define_class_under(HDRHistogram, "HDRHistogramError", rb_eRuntimeError);
   
-  rb_define_singleton_method(HDRHistogram, "new", histogram_new, 1);
+  rb_define_singleton_method(HDRHistogram, "new", histogram_new, 3);
   
   rb_define_method(HDRHistogram, "reset", histogram_reset, 0);
   rb_define_method(HDRHistogram, "memsize", histogram_memsize, 0);
@@ -128,6 +126,7 @@ void Init_HDRHistogram() {
   rb_define_private_method(HDRHistogram, "bucket_count", histogram_bucket_count, 0);
   rb_define_private_method(HDRHistogram, "sub_bucket_count", histogram_bucket_count, 0);
   rb_define_private_method(HDRHistogram, "counts_len", histogram_counts_len, 0);
-
+  
+  //rb_define_private_method(HDRHistogram, "histogram_spectrum", histogram_spectrum, 2);
 }
 

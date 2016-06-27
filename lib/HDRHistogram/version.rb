@@ -1,3 +1,3 @@
-module HDRHistogram
+class HDRHistogram
   VERSION = "0.1.0"
 end

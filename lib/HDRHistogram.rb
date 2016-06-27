@@ -1,5 +1,2 @@
 require "HDRHistogram/version"
-
-module HDRHistogram
-  # Your code goes here...
-end
+require "ruby_hdr_histogram/ruby_hdr_histogram"

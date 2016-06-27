@@ -2,6 +2,42 @@ require "HDRHistogram/version"
 require "ruby_hdr_histogram"
 
 class HDRHistogram
+  def initialize(lowest, highest, sig, opt={})
+    @multiplier = opt[:multiplier] || 1
+    @unit = opt[:unit] || opt[:units]
+  end
+  
+  def record(val)
+    raw_record(val * 1/@multiplier)
+  end
+  def record_corrected(val)
+    raw_record_corrected(val * 1/@multiplier)
+  end
+  def min
+    raw_min * @multiplier
+  end
+  def max
+    raw_max * @multiplier
+  end
+  def mean
+    raw_mean * @multiplier
+  end
+  def stddev
+    raw_stddev * @multiplier
+  end
+  def percentile(pct)
+    raw_percentile(pct) * @multiplier
+  end
+  def merge(other)
+    if other.multiplier != multiplier
+      raise HDRHistogramError, "can't merge histograms with different multipliers"
+    end
+    if other.unit != unit
+      raise HDRHistogramError, "can't merge histograms with different units"
+    end
+    raw_merge other
+  end
+  
   def to_s
     stats
   end

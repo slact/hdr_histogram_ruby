@@ -17,12 +17,15 @@ static void histogram_free(void *p) {
 
 static VALUE histogram_new(int argc, VALUE* argv, VALUE class) {
   VALUE                    self, lowest_value, highest_value, significant_figures;
-  VALUE                    splat;
+  VALUE                    opt;
   
   struct hdr_histogram    *hdrh;
   int                      ret;
   
-  rb_scan_args(argc, argv, "30*", &lowest_value, &highest_value, &significant_figures, &splat);
+  rb_scan_args(argc, argv, "31", &lowest_value, &highest_value, &significant_figures, &opt);
+  
+  lowest_value = rb_funcall(class, rb_intern("adjusted_boundary_val"), 2, lowest_value, opt);
+  highest_value = rb_funcall(class, rb_intern("adjusted_boundary_val"), 2, highest_value, opt);
   
   ret = hdr_init(NUM2INT(lowest_value), NUM2INT(highest_value), NUM2INT(significant_figures), &hdrh);
   if(ret == EINVAL) {

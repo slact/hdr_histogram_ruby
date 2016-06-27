@@ -50,10 +50,16 @@ class HDRHistogram
   
   def stats(percentiles = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100])
     str = ""
+    pctf = @multiplier < 1 ? "%12.#{Math.log(0.001, 10).abs.ceil}f" : "%12u"
     percentiles.each do |pct|
-      str << sprintf("%7.3f%% %12u\n", pct, percentile(pct))
+      str << sprintf("%7.3f%% #{pctf}%s\n", pct, percentile(pct), unit)
     end
     str
   end
+  
+  def self.adjusted_boundary_val(val, opt={})
+    return val * 1/(opt[:multiplier] || 1)
+  end
+  private_class_method :adjusted_boundary_val
   
 end

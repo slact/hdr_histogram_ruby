@@ -70,9 +70,7 @@ puts hdr.latency_stats
 
 ## API
 
-### ```ruby
-hdr = HDRHistogram.new(lowest_value, highest_value, significant_figures, multiplier: 1, unit: nil)
-```
+#### `hdr = HDRHistogram.new(lowest_value, highest_value, significant_figures, multiplier: 1, unit: nil)`
 Create new HDRHistogram object.
 - `lowest_value`: The smallest possible value to be put into the histogram.  
 - `highest_value`: The largest possible value to be put into the histogram.  
@@ -82,22 +80,14 @@ Create new HDRHistogram object.
   
   
 
-```ruby
-hdr.record(value)
-```
+#### `hdr.record(value)`
+
 Add value to histogram.
   
-  
-
-```ruby
-hdr.percentile(pct)
-```
+#### `hdr.percentile(pct)`
 Get histogram value at given percentile
   
-  
-```ruby
-hdr.record_corrected(value)
-```
+#### `hdr.record_corrected(value)`
 Add value to histogram.
   
   

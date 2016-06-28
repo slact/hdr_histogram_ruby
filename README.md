@@ -70,7 +70,7 @@ puts hdr.latency_stats
 
 ## API
 
-```ruby
+### ```ruby
 hdr = HDRHistogram.new(lowest_value, highest_value, significant_figures, multiplier: 1, unit: nil)
 ```
 Create new HDRHistogram object.

@@ -70,26 +70,26 @@ puts hdr.latency_stats
 
 ## API
 
-- ```ruby
+* ```ruby
   hdr = HDRHistogram.new(lowest_value, highest_value, significant_figures, multiplier: 1, unit: nil)
   ```
   `lowest_value`: The smallest possible value to be put into the histogram.  
   `highest_value`: The largest possible value to be put into the histogram.  
   `significant_figures`: The level of precision for this histogram, i.e. the number of figures in a decimal number that will be maintained.  E.g. a value of 3 will mean the results from the histogram will be accurate up to the first three digits. Must be a value between 1 and 5 (inclusive). 
   `:multiplier`: A multiplier to adjust all incoming values. If present, the raw value recorded in the histogram for `record(val)` will be `val * 1/multiplier`. Similarly, `percentile(pctl) => val * multiplier`. If `multiplier` < 1, `lowest_value` can be < 1 so that `lowest_value` * 1/`multiplier` == 1. 
-  `:unit`: A unit for labeling histogram values. Useful for outputting things.  
-  
-- ```ruby
+  `:unit`: A unit for labeling histogram values. Useful for outputting things.
+
+* ```ruby
   hdr.record(value)
   ```
   Add value to histogram.
 
-- ```ruby
+* ```ruby
   hdr.percentile(pct)
   ```
   Get histogram value at given percentile
-  
-- ```ruby
+
+* ```ruby
   hdr.record_corrected(value)
   ```
   Add value to histogram.

@@ -1,7 +1,7 @@
 #Ruby HdrHistogram Library
 
 ## Overview
-HdrHistogram is an algorithm designed for recording histograms of value measurements with configurable precision.  Value precision is expressed as the number of significant digits, providing control over value quantization and resolution whilst maintaining a fixed cost in both space and time.
+HdrHistogram is an algorithm designed for recording histograms of value measurements with configurable precision. Value precision is expressed as the number of significant digits, providing control over value quantization and resolution whilst maintaining a fixed cost in both space and time.
 More information can be found on the [HdrHistogram site](http://hdrhistogram.org/) (which much of the text in this README paraphrases).  This library wraps the [C port](https://github.com/HdrHistogram/HdrHistogram_c).
 
 
@@ -81,12 +81,14 @@ Create new HDRHistogram object.
   
 
 #### `hdr.record(value)`
-Records a `value` in the histogram, will round this `value` of to a precision at or better than the `significant_figures` specified at construction time.
+Records a `value` in the histogram, will round this `value` of to a precision at or better than the `significant_figures` specified at construction time.  
+Returns `false` if the value was not recorded, `true` otherwise.
 
 #### `hdr.record_corrected(value, expected_interval)`
 Record a `value` in the histogram and backfill based on an expected interval.  
 
-This is specifically used for recording latency.  If the `value` is larger than the `expected_interval` then the latency recording system has experienced [co-ordinated omission](https://github.com/giltene/wrk2#acknowledgements). This method fills in the values that would have occured had the client providing the load not been blocked.
+This is specifically used for recording latency.  If the `value` is larger than the `expected_interval` then the latency recording system has experienced [co-ordinated omission](https://github.com/giltene/wrk2#acknowledgements). This method fills in the values that would have occured had the client providing the load not been blocked.  
+Returns `false` if the value was not recorded, `true` otherwise.
 
 #### `hdr.percentile(pct)`
 Get the value at a specific percentile.

@@ -58,7 +58,7 @@ class HDRHistogram
   end
   
   def self.adjusted_boundary_val(val, opt={})
-    return val * 1/(opt[:multiplier] || 1)
+    return opt ? val * 1/(opt[:multiplier] || 1) : val
   end
   private_class_method :adjusted_boundary_val
   

@@ -1,41 +1,99 @@
-# HDRHistogram
+#Ruby HdrHistogram Library
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/HDRHistogram`. To experiment with that code, run `bin/console` for an interactive prompt.
+## Overview
+HdrHistogram is an algorithm designed for recording histograms of value measurements with configurable precision.  Value precision is expressed as the number of significant digits, providing control over value quantization and resolution whilst maintaining a fixed cost in both space and time.
+More information can be found on the [HdrHistogram site](http://hdrhistogram.org/) (which much of the text in this README paraphrases).  This library wraps the [C port](https://github.com/HdrHistogram/HdrHistogram_c).
 
-TODO: Delete this and the text above, and describe your gem
 
 ## Installation
 
-Add this line to your application's Gemfile:
-
-```ruby
-gem 'HDRHistogram'
+```shell
+  gem install HDRHistogram
 ```
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install HDRHistogram
 
 ## Usage
 
-TODO: Write usage instructions here
+### Examples
 
-## Development
+#### Basic usage
+```ruby
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+require "HDRHistogram"
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+hdr = HDRHistogram.new(1,1000000,3)
 
-## Contributing
+i=10
+while i != 1000000 do
+  hdr.record(i)
+  i+=10
+end
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/HDRHistogram. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
+p50 = hdr.percentile(50)
+#p50 == 500223
+```
 
+#### Multipliers and units
+While hdr_histogram internally can represent only integers between 1 and an integer upper bound, the Ruby HDRHistogram can be initialized with a multiplier to adjust the recorded values, as well as a named unit for the values for output:
+```ruby
+#record milliseconds with 3 digits past the decimal
+hdr = HDRHistogram.new(0.001,1000, 3, multiplier: 0.001, unit: :ms)
 
-## License
+i=0.001
+while i <= 1000 do
+  hdr.record(i)
+  i += 0.010
+end
 
-The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
+puts hdr.stats
+#  10.000%      100.031ms
+#  20.000%      200.063ms
+#  30.000%      300.031ms
+#  40.000%      400.127ms
+#  50.000%      500.223ms
+#  60.000%      600.063ms
+#  70.000%      700.415ms
+#  80.000%      800.255ms
+#  90.000%      900.095ms
+# 100.000%     1000.447ms
 
+puts hdr.latency_stats
+#  Latency Stats
+#  50.000%      500.223ms
+#  75.000%      750.079ms
+#  90.000%      900.095ms
+#  99.000%      990.207ms
+#  99.900%      999.423ms
+#  99.990%      999.935ms
+#  99.999%     1000.447ms
+# 100.000%     1000.447ms
+```
+
+## API
+
+- ```ruby
+  hdr = HDRHistogram.new(lowest_value, highest_value, significant_figures, multiplier: 1, unit: nil)
+  ```
+  `lowest_value`: The smallest possible value to be put into the histogram.  
+  `highest_value`: The largest possible value to be put into the histogram.  
+  `significant_figures`: The level of precision for this histogram, i.e. the number of figures in a decimal number that will be maintained.  E.g. a value of 3 will mean the results from the histogram will be accurate up to the first three digits. Must be a value between 1 and 5 (inclusive). 
+  `:multiplier`: A multiplier to adjust all incoming values. If present, the raw value recorded in the histogram for `record(val)` will be `val * 1/multiplier`. Similarly, `percentile(pctl) => val * multiplier`. If `multiplier` < 1, `lowest_value` can be < 1 so that `lowest_value` * 1/`multiplier` == 1. 
+  `:unit`: A unit for labeling histogram values. Useful for outputting things.  
+  
+- ```ruby
+  hdr.record(value)
+  ```
+  Add value to histogram.
+
+- ```ruby
+  hdr.percentile(pct)
+  ```
+  Get histogram value at given percentile
+  
+- ```ruby
+  hdr.record_corrected(value)
+  ```
+  Add value to histogram.
+  
+  
+  
+  

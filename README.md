@@ -81,13 +81,16 @@ Create new HDRHistogram object.
   
 
 #### `hdr.record(value)`
+Records a `value` in the histogram, will round this `value` of to a precision at or better than the `significant_figures` specified at construction time.
 
-Add value to histogram.
-  
+#### `hdr.record_corrected(value, expected_interval)`
+Record a `value` in the histogram and backfill based on an expected interval.  
+
+This is specifically used for recording latency.  If the `value` is larger than the `expected_interval` then the latency recording system has experienced [co-ordinated omission](https://github.com/giltene/wrk2#acknowledgements). This method fills in the values that would have occured had the client providing the load not been blocked.
+
 #### `hdr.percentile(pct)`
 Get histogram value at given percentile
   
-#### `hdr.record_corrected(value)`
-Add value to histogram.
+
   
   

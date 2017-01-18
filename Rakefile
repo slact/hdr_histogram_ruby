@@ -1,7 +1,7 @@
 require "bundler/gem_tasks"
 require "rake/extensiontask"
 require 'rake/testtask'
-task :default => :spec
+task :default => :test
 Rake::ExtensionTask.new 'ruby_hdr_histogram'
 
 

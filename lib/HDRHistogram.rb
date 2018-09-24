@@ -5,6 +5,37 @@ class HDRHistogram
   def initialize(lowest, highest, sig, opt={})
     @multiplier = opt[:multiplier] || 1
     @unit = opt[:unit] || opt[:units]
+    
+    if opt[:unserialized]
+      m=opt[:unserialized]
+      self.unit_magnitude= m[:unit_magnitude].to_i
+      self.sub_bucket_half_count_magnitude= m[:sub_bucket_half_count_magnitude].to_i
+      self.sub_bucket_half_count= m[:sub_bucket_half_count].to_i
+      self.sub_bucket_mask= m[:sub_bucket_mask].to_i
+      self.sub_bucket_count= m[:sub_bucket_count].to_i
+      self.bucket_count= m[:bucket_count].to_i
+      self.min_value= m[:min_value].to_i
+      self.max_value= m[:max_value].to_i
+      self.normalizing_index_offset= m[:normalizing_index_offset].to_i
+      self.conversion_ratio= m[:conversion_ratio].to_f
+      self.counts_len= m[:counts_len].to_i
+      self.total_count= m[:total_count].to_i
+      
+      counts = m[:counts].split " "
+      i=0
+      counts.each do |count|
+        m = count.match /^~(\d+)$/
+        if m then #zerofill
+          m[1].to_i.times do
+            set_raw_count(i, 0)
+            i=i+1
+          end
+        else
+          set_raw_count(i, count.to_i)
+          i=i+1
+        end
+      end
+    end
   end
   
   def record(val)
@@ -62,4 +93,13 @@ class HDRHistogram
   end
   private_class_method :adjusted_boundary_val
   
+  def self.unserialize(str)
+    regex = /^(?<lowest_trackable_value>\d+) (?<highest_trackable_value>\d+) (?<unit_magnitude>\d+) (?<significant_figures>\d+) (?<sub_bucket_half_count_magnitude>\d+) (?<sub_bucket_half_count>\d+) (?<sub_bucket_mask>\d+) (?<sub_bucket_count>\d+) (?<bucket_count>\d+) (?<min_value>\d+) (?<max_value>\d+) (?<normalizing_index_offset>\d+) (?<conversion_ratio>\S+) (?<counts_len>\d+) (?<total_count>\d+) \[(?<counts>[\d~ ]+)\s\]/
+    
+    m = str.match regex
+    
+    hdrh = self.new(m[:lowest_trackable_value].to_i, m[:highest_trackable_value].to_i, m[:significant_figures].to_i, {unserialized: m})
+    
+    return hdrh
+  end
 end

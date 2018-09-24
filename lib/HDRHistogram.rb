@@ -37,12 +37,12 @@ class HDRHistogram
       end
     end
   end
-  
+
   def record(val)
     raw_record(val * 1/@multiplier)
   end
-  def record_corrected(val)
-    raw_record_corrected(val * 1/@multiplier)
+  def record_corrected(val, expected_interval)
+    raw_record_corrected(val * 1/@multiplier, expected_interval * 1/@multiplier)
   end
   def min
     raw_min * @multiplier

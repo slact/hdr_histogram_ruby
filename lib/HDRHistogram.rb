@@ -2,6 +2,8 @@ require "HDRHistogram/version"
 require "ruby_hdr_histogram"
 
 class HDRHistogram
+  class UnserializeError < StandardError
+  end
   def initialize(lowest, highest, sig, opt={})
     @multiplier = opt[:multiplier] || 1
     @unit = opt[:unit] || opt[:units]
@@ -93,12 +95,18 @@ class HDRHistogram
   end
   private_class_method :adjusted_boundary_val
   
-  def self.unserialize(str)
+  def self.unserialize(str, opt={})
     regex = /^(?<lowest_trackable_value>\d+) (?<highest_trackable_value>\d+) (?<unit_magnitude>\d+) (?<significant_figures>\d+) (?<sub_bucket_half_count_magnitude>\d+) (?<sub_bucket_half_count>\d+) (?<sub_bucket_mask>\d+) (?<sub_bucket_count>\d+) (?<bucket_count>\d+) (?<min_value>\d+) (?<max_value>\d+) (?<normalizing_index_offset>\d+) (?<conversion_ratio>\S+) (?<counts_len>\d+) (?<total_count>\d+) \[(?<counts>[\d~ ]+)\s\]/
     
     m = str.match regex
     
-    hdrh = self.new(m[:lowest_trackable_value].to_i, m[:highest_trackable_value].to_i, m[:significant_figures].to_i, {unserialized: m})
+    raise UnserializeError, "invalid serialization pattern" if m.nil?
+    
+    opt[:unserialized]=m
+    
+    low = m[:lowest_trackable_value].to_i * (opt[:multiplier] || 1)
+    high = m[:highest_trackable_value].to_i * (opt[:multiplier] || 1)
+    hdrh = self.new(low, high, m[:significant_figures].to_i, opt)
     
     return hdrh
   end

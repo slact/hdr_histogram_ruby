@@ -22,7 +22,7 @@ class HDRHistogramTest < Minitest::Test
   
   def test_hdr_unserialize
     str = "1 10000000 0 3 10 1024 2047 2048 14 17 239 0 1.000000 15360 214 [~17 1 ~4 1 0 1 1 1 3 5 1 2 0 5 1 4 2 1 1 1 1 0 4 1 1 3 2 6 6 8 6 4 4 0 1 0 1 3 0 2 ~3 3 2 ~4 2 ~2 3 ~3 1 0 1 ~2 1 2 0 1 3 2 1 ~2 4 1 3 5 2 0 1 ~4 1 3 2 2 0 1 1 1 1 1 2 1 1 ~2 1 1 2 2 2 0 1 1 1 2 3 3 2 ~2 4 0 1 2 2 1 1 1 1 0 3 0 2 3 2 1 2 0 2 2 1 1 1 0 1 1 0 2 2 2 2 ~2 2 0 1 ~4 1 ~2 1 ~3 1 ~9 1 0 1 ~31 1 ~4 1 ~12 1 ~15120 ]"
-    assert_raises(HDRHistogram::UnserializeError) do
+    assert_raises(HDRHistogram::HDRHistogramError) do
       HDRHistogram.unserialize("banana")
     end
     

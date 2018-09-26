@@ -2,8 +2,6 @@ require "HDRHistogram/version"
 require "ruby_hdr_histogram"
 
 class HDRHistogram
-  class UnserializeError < StandardError
-  end
   def initialize(lowest, highest, sig, opt={})
     @multiplier = opt[:multiplier] || 1
     @unit = opt[:unit] || opt[:units]
@@ -61,7 +59,10 @@ class HDRHistogram
   def percentile(pct)
     raw_percentile(pct) * @multiplier
   end
-  def merge(other)
+  def merge!(other)
+    if self == other 
+      raise HDRHistogramError, "can't merge histogram with itself"
+    end
     if other.multiplier != multiplier
       raise HDRHistogramError, "can't merge histograms with different multipliers"
     end
@@ -69,6 +70,7 @@ class HDRHistogram
       raise HDRHistogramError, "can't merge histograms with different units"
     end
     raw_merge other
+    self
   end
   
   def to_s
@@ -100,7 +102,7 @@ class HDRHistogram
     
     m = str.match regex
     
-    raise UnserializeError, "invalid serialization pattern" if m.nil?
+    raise HDRHistogramError, "invalid serialization pattern" if m.nil?
     
     opt[:unserialized]=m
     

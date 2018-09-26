@@ -108,6 +108,9 @@ Get the standard deviation for the values in the histogram.
 #### `hdr.mean`
 Get the mean (average) for the values in the histogram.
 
+#### `hdr.merge!(other_hdr)`
+Merge another HDRHistogram's data.
+
 #### `hdr.reset`
 Reset a histogram to zero - empty out a histogram and re-initialise it. If you want to re-use an existing histogram, but reset everything back to zero, this is the method to use.
 

@@ -18,22 +18,29 @@ class HDRHistogram
       self.max_value= m[:max_value].to_i
       self.normalizing_index_offset= m[:normalizing_index_offset].to_i
       self.conversion_ratio= m[:conversion_ratio].to_f
-      self.counts_len= m[:counts_len].to_i
+      counts_len = m[:counts_len].to_i
+      self.counts_len= counts_len
       self.total_count= m[:total_count].to_i
       
       counts = m[:counts].split " "
       i=0
+      shorted = 0
       counts.each do |count|
-        m = count.match /^~(\d+)$/
-        if m then #zerofill
-          m[1].to_i.times do
-            set_raw_count(i, 0)
-            i=i+1
+        nf="~!@#$%^&*"
+        m = count.match /^([#{nf}])(\d+)$/
+        if m && nf.index(m[1])
+          shorted += 1
+          m[2].to_i.times do
+            set_raw_count(i, nf.index(m[1]))
+            i+=1
           end
         else
           set_raw_count(i, count.to_i)
-          i=i+1
+          i+=1
         end
+      end
+      if counts_len != i
+        raise HDRHistogramError, "invalid serialization pattern: total count doesn't match, expected: #{counts_len}, found #{i} (diff: #{counts_len - i}), counts.count: #{counts.count}, shorted: #{shorted}"
       end
     end
   end
@@ -98,7 +105,7 @@ class HDRHistogram
   private_class_method :adjusted_boundary_val
   
   def self.unserialize(str, opt={})
-    regex = /^(?<lowest_trackable_value>\d+) (?<highest_trackable_value>\d+) (?<unit_magnitude>\d+) (?<significant_figures>\d+) (?<sub_bucket_half_count_magnitude>\d+) (?<sub_bucket_half_count>\d+) (?<sub_bucket_mask>\d+) (?<sub_bucket_count>\d+) (?<bucket_count>\d+) (?<min_value>\d+) (?<max_value>\d+) (?<normalizing_index_offset>\d+) (?<conversion_ratio>\S+) (?<counts_len>\d+) (?<total_count>\d+) \[(?<counts>[\d~ ]+)\s\]/
+    regex = /^(?<lowest_trackable_value>\d+) (?<highest_trackable_value>\d+) (?<unit_magnitude>\d+) (?<significant_figures>\d+) (?<sub_bucket_half_count_magnitude>\d+) (?<sub_bucket_half_count>\d+) (?<sub_bucket_mask>\d+) (?<sub_bucket_count>\d+) (?<bucket_count>\d+) (?<min_value>\d+) (?<max_value>\d+) (?<normalizing_index_offset>\d+) (?<conversion_ratio>\S+) (?<counts_len>\d+) (?<total_count>\d+) \[(?<counts>([~!@#$%^&*]?\d+ )+)\]/
     
     m = str.match regex
     

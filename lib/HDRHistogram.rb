@@ -99,6 +99,10 @@ class HDRHistogram
     str
   end
   
+  def serialize
+    
+  end
+  
   def self.adjusted_boundary_val(val, opt={})
     return opt ? val * 1/(opt[:multiplier] || 1) : val
   end

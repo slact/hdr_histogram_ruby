@@ -103,42 +103,33 @@ static VALUE histogram_merge(VALUE self, VALUE another ) {
   return INT2NUM(hdr_add(hdr, hdr2));
 }
 
-#define HISTOGRAM_GETINT_METHOD(int_name)                 \
-static VALUE histogram_##int_name(VALUE self) {           \
+#define HISTOGRAM_GETSETNUM_METHOD(num_name, num_type)       \
+static VALUE histogram_get_##num_name(VALUE self) {       \
   GET_HDRHIST(hdr, self);                                 \
-  return INT2NUM(hdr->int_name);                          \
-}
-
-#define HISTOGRAM_SETNUM_METHOD(num_name, num_type)       \
+  return num_type##2NUM(hdr->int_name);                   \
+}                                                         \
+                                                          \
 static VALUE histogram_set_##num_name(VALUE self, VALUE num) { \
   GET_HDRHIST(hdr, self);                                 \
   hdr->num_name = NUM2##num_type(num);                    \
   return Qtrue;                                           \
 }
 
-HISTOGRAM_SETNUM_METHOD(lowest_trackable_value, LL)
-HISTOGRAM_SETNUM_METHOD(highest_trackable_value, LL)
-HISTOGRAM_SETNUM_METHOD(unit_magnitude, LONG)
-HISTOGRAM_SETNUM_METHOD(significant_figures, LONG)
-HISTOGRAM_SETNUM_METHOD(sub_bucket_half_count_magnitude, LONG)
-HISTOGRAM_SETNUM_METHOD(sub_bucket_half_count, LONG)
-HISTOGRAM_SETNUM_METHOD(sub_bucket_mask, LL)
-HISTOGRAM_SETNUM_METHOD(sub_bucket_count, LONG)
-HISTOGRAM_SETNUM_METHOD(bucket_count, LONG)
-HISTOGRAM_SETNUM_METHOD(min_value, LL)
-HISTOGRAM_SETNUM_METHOD(max_value, LL)
-HISTOGRAM_SETNUM_METHOD(normalizing_index_offset, LONG)
-HISTOGRAM_SETNUM_METHOD(conversion_ratio, DBL)
-HISTOGRAM_SETNUM_METHOD(counts_len, LONG)
-HISTOGRAM_SETNUM_METHOD(total_count, LL)
-
-HISTOGRAM_GETINT_METHOD(lowest_trackable_value)
-HISTOGRAM_GETINT_METHOD(highest_trackable_value)
-HISTOGRAM_GETINT_METHOD(unit_magnitude)
-HISTOGRAM_GETINT_METHOD(significant_figures)
-HISTOGRAM_GETINT_METHOD(bucket_count)
-HISTOGRAM_GETINT_METHOD(sub_bucket_count)
-HISTOGRAM_GETINT_METHOD(counts_len)
+HISTOGRAM_GETSETNUM_METHOD(lowest_trackable_value, LL)
+HISTOGRAM_GETSETNUM_METHOD(highest_trackable_value, LL)
+HISTOGRAM_GETSETNUM_METHOD(unit_magnitude, LONG)
+HISTOGRAM_GETSETNUM_METHOD(significant_figures, LONG)
+HISTOGRAM_GETSETNUM_METHOD(sub_bucket_half_count_magnitude, LONG)
+HISTOGRAM_GETSETNUM_METHOD(sub_bucket_half_count, LONG)
+HISTOGRAM_GETSETNUM_METHOD(sub_bucket_mask, LL)
+HISTOGRAM_GETSETNUM_METHOD(sub_bucket_count, LONG)
+HISTOGRAM_GETSETNUM_METHOD(bucket_count, LONG)
+HISTOGRAM_GETSETNUM_METHOD(min_value, LL)
+HISTOGRAM_GETSETNUM_METHOD(max_value, LL)
+HISTOGRAM_GETSETNUM_METHOD(normalizing_index_offset, LONG)
+HISTOGRAM_GETSETNUM_METHOD(conversion_ratio, DBL)
+HISTOGRAM_GETSETNUM_METHOD(counts_len, LONG)
+HISTOGRAM_GETSETNUM_METHOD(total_count, LL)
 
 static VALUE histogram_set_raw_count(VALUE self, VALUE index, VALUE count) {
   GET_HDRHIST(hdr, self);
@@ -146,6 +137,18 @@ static VALUE histogram_set_raw_count(VALUE self, VALUE index, VALUE count) {
   int64_t c = NUM2LL(count);
   hdr->counts[i]=c;
   return Qtrue;
+}
+static VALUE histogram_get_raw_count(VALUE self, VALUE index) {
+  VALUE   count;
+  int     i = NUM2INT(index);
+  GET_HDRHIST(hdr, self);
+  if(i >= hdr->counts_len) {
+    return Qnil;
+  }
+  else {
+    count = LL2NUM(hdr->counts[i]);
+    return count;
+  }
 }
 
 void Init_ruby_hdr_histogram() {
@@ -176,6 +179,7 @@ void Init_ruby_hdr_histogram() {
   rb_define_private_method(HDRHistogram, "sub_bucket_half_count_magnitude=", histogram_set_sub_bucket_half_count_magnitude, 1);
   rb_define_private_method(HDRHistogram, "sub_bucket_half_count=", histogram_set_sub_bucket_half_count, 1);
   rb_define_private_method(HDRHistogram, "sub_bucket_mask=", histogram_set_sub_bucket_mask, 1);
+  rb_define_private_method(HDRHistogram, "sub_bucket_mask", histogram_get_sub_bucket_mask, 1);
   rb_define_private_method(HDRHistogram, "sub_bucket_count=", histogram_set_sub_bucket_count, 1);
   rb_define_private_method(HDRHistogram, "bucket_count=", histogram_set_bucket_count, 1);
   rb_define_private_method(HDRHistogram, "min_value=", histogram_set_min_value, 1);

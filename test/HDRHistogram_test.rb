@@ -28,6 +28,7 @@ class HDRHistogramTest < Minitest::Test
     
     hdr = HDRHistogram.unserialize(str, unit: "ms", multiplier: 0.001)
     
+    assert_equal hdr.serialize, str
     #assert_equal(hdr.stats, " 10.000%        0.032ms\n 20.000%        0.045ms\n 30.000%        0.049ms\n 40.000%        0.062ms\n 50.000%        0.089ms\n 60.000%        0.102ms\n 70.000%        0.123ms\n 80.000%        0.136ms\n 90.000%        0.152ms\n100.000%        0.239ms\n")
     
     #binding.pry

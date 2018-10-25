@@ -106,7 +106,7 @@ static VALUE histogram_merge(VALUE self, VALUE another ) {
 #define HISTOGRAM_GETSETNUM_METHOD(num_name, num_type)       \
 static VALUE histogram_get_##num_name(VALUE self) {       \
   GET_HDRHIST(hdr, self);                                 \
-  return num_type##2NUM(hdr->int_name);                   \
+  return num_type##2NUM(hdr->num_name);                   \
 }                                                         \
                                                           \
 static VALUE histogram_set_##num_name(VALUE self, VALUE num) { \
@@ -130,6 +130,11 @@ HISTOGRAM_GETSETNUM_METHOD(normalizing_index_offset, LONG)
 HISTOGRAM_GETSETNUM_METHOD(conversion_ratio, DBL)
 HISTOGRAM_GETSETNUM_METHOD(counts_len, LONG)
 HISTOGRAM_GETSETNUM_METHOD(total_count, LL)
+
+#define HISTOGRAM_RUBY_PRIVATE_GETSETTERS(num_name) \
+  rb_define_private_method(HDRHistogram, #num_name "=", histogram_set_##num_name, 1);\
+  rb_define_private_method(HDRHistogram, #num_name, histogram_get_##num_name, 0)
+
 
 static VALUE histogram_set_raw_count(VALUE self, VALUE index, VALUE count) {
   GET_HDRHIST(hdr, self);
@@ -172,35 +177,23 @@ void Init_ruby_hdr_histogram() {
   rb_define_private_method(HDRHistogram, "raw_percentile", histogram_percentile, 1);
   rb_define_private_method(HDRHistogram, "raw_merge", histogram_merge, 1);
   
-  rb_define_private_method(HDRHistogram, "lowest_trackable_value=", histogram_set_lowest_trackable_value, 1);
-  rb_define_private_method(HDRHistogram, "highest_trackable_value=", histogram_set_highest_trackable_value, 1);
-  rb_define_private_method(HDRHistogram, "unit_magnitude=", histogram_set_unit_magnitude, 1);
-  rb_define_private_method(HDRHistogram, "significant_figures=", histogram_set_significant_figures, 1);
-  rb_define_private_method(HDRHistogram, "sub_bucket_half_count_magnitude=", histogram_set_sub_bucket_half_count_magnitude, 1);
-  rb_define_private_method(HDRHistogram, "sub_bucket_half_count=", histogram_set_sub_bucket_half_count, 1);
-  rb_define_private_method(HDRHistogram, "sub_bucket_mask=", histogram_set_sub_bucket_mask, 1);
-  rb_define_private_method(HDRHistogram, "sub_bucket_mask", histogram_get_sub_bucket_mask, 1);
-  rb_define_private_method(HDRHistogram, "sub_bucket_count=", histogram_set_sub_bucket_count, 1);
-  rb_define_private_method(HDRHistogram, "bucket_count=", histogram_set_bucket_count, 1);
-  rb_define_private_method(HDRHistogram, "min_value=", histogram_set_min_value, 1);
-  rb_define_private_method(HDRHistogram, "max_value=", histogram_set_max_value, 1);
-  rb_define_private_method(HDRHistogram, "normalizing_index_offset=", histogram_set_normalizing_index_offset, 1);
-  rb_define_private_method(HDRHistogram, "conversion_ratio=", histogram_set_conversion_ratio, 1);
-  rb_define_private_method(HDRHistogram, "counts_len=", histogram_set_counts_len, 1);
-  rb_define_private_method(HDRHistogram, "total_count=", histogram_set_total_count, 1);
+  HISTOGRAM_RUBY_PRIVATE_GETSETTERS(lowest_trackable_value);
+  HISTOGRAM_RUBY_PRIVATE_GETSETTERS(highest_trackable_value);
+  HISTOGRAM_RUBY_PRIVATE_GETSETTERS(unit_magnitude);
+  HISTOGRAM_RUBY_PRIVATE_GETSETTERS(significant_figures);
+  HISTOGRAM_RUBY_PRIVATE_GETSETTERS(sub_bucket_half_count_magnitude);
+  HISTOGRAM_RUBY_PRIVATE_GETSETTERS(sub_bucket_half_count);
+  HISTOGRAM_RUBY_PRIVATE_GETSETTERS(sub_bucket_mask);
+  HISTOGRAM_RUBY_PRIVATE_GETSETTERS(sub_bucket_count);
+  HISTOGRAM_RUBY_PRIVATE_GETSETTERS(bucket_count);
+  HISTOGRAM_RUBY_PRIVATE_GETSETTERS(min_value);
+  HISTOGRAM_RUBY_PRIVATE_GETSETTERS(max_value);
+  HISTOGRAM_RUBY_PRIVATE_GETSETTERS(normalizing_index_offset);
+  HISTOGRAM_RUBY_PRIVATE_GETSETTERS(conversion_ratio);
+  HISTOGRAM_RUBY_PRIVATE_GETSETTERS(counts_len);
+  HISTOGRAM_RUBY_PRIVATE_GETSETTERS(total_count);
+  
   rb_define_private_method(HDRHistogram, "set_raw_count", histogram_set_raw_count, 2);
-  
-  rb_define_method(HDRHistogram, "lowest_trackable_value", histogram_lowest_trackable_value, 0);
-  rb_define_method(HDRHistogram, "highest_trackable_value", histogram_highest_trackable_value, 0);
-  rb_define_private_method(HDRHistogram, "unit_magnitude", histogram_unit_magnitude, 0);
-  rb_define_method(HDRHistogram, "significant_figures", histogram_significant_figures, 0);
-  rb_define_private_method(HDRHistogram, "bucket_count", histogram_bucket_count, 0);
-  rb_define_private_method(HDRHistogram, "sub_bucket_count", histogram_sub_bucket_count, 0);
-  rb_define_private_method(HDRHistogram, "counts_len", histogram_counts_len, 0);
-  
-  
-  rb_define_private_method(HDRHistogram, "unit_magnitude", histogram_unit_magnitude, 0);
-  
-  //rb_define_private_method(HDRHistogram, "histogram_spectrum", histogram_spectrum, 2);
+  rb_define_private_method(HDRHistogram, "get_raw_count", histogram_get_raw_count, 1);
 }
 

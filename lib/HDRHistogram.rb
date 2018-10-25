@@ -100,7 +100,36 @@ class HDRHistogram
   end
   
   def serialize
+    attrs = [lowest_trackable_value, highest_trackable_value, unit_magnitude, significant_figures, sub_bucket_half_count_magnitude, sub_bucket_half_count, sub_bucket_mask, sub_bucket_count, bucket_count, min_value, max_value, normalizing_index_offset, ("%f" % conversion_ratio), counts_len, total_count]
     
+    raw_counts = []
+    numrun="~!@#$%^&*"
+    
+    for i in 0...counts_len do
+      raw_counts << get_raw_count(i)
+    end
+    
+    counts = []
+    
+    while raw_counts.length > 0 do
+      num = raw_counts.shift
+      n = 1
+      if num < numrun.length
+        while raw_counts[0] == num
+          raw_counts.shift
+          n+=1
+        end
+        if n > 1
+          counts << "#{numrun[num]}#{n}"
+        else
+          counts << num
+        end
+      else
+        counts << num
+      end
+    end
+    
+    "#{attrs.join " "} [#{counts.join " "} ]"
   end
   
   def self.adjusted_boundary_val(val, opt={})

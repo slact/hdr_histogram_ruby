@@ -21,6 +21,12 @@ class HDRHistogram
       counts_len = m[:counts_len].to_i
       self.counts_len= counts_len
       self.total_count= m[:total_count].to_i
+      if !opt[:multiplier] && m[:multiplier]
+        @multiplier = m[:multiplier].to_f
+      end
+      if !@unit && m[:unit]
+        @unit = m[:unit]
+      end
       
       counts = m[:counts].split " "
       i=0
@@ -129,7 +135,11 @@ class HDRHistogram
       end
     end
     
-    "#{attrs.join " "} [#{counts.join " "} ]"
+    out = "#{attrs.join " "} [#{counts.join " "} ]"
+    if @unit || @multiplier != 1
+      out << " (#{unit} #{multiplier})"
+    end
+    out
   end
   
   def self.adjusted_boundary_val(val, opt={})
@@ -138,16 +148,17 @@ class HDRHistogram
   private_class_method :adjusted_boundary_val
   
   def self.unserialize(str, opt={})
-    regex = /^(?<lowest_trackable_value>\d+) (?<highest_trackable_value>\d+) (?<unit_magnitude>\d+) (?<significant_figures>\d+) (?<sub_bucket_half_count_magnitude>\d+) (?<sub_bucket_half_count>\d+) (?<sub_bucket_mask>\d+) (?<sub_bucket_count>\d+) (?<bucket_count>\d+) (?<min_value>\d+) (?<max_value>\d+) (?<normalizing_index_offset>\d+) (?<conversion_ratio>\S+) (?<counts_len>\d+) (?<total_count>\d+) \[(?<counts>([~!@#$%^&*]?\d+ )+)\]/
+    regex = /^(?<lowest_trackable_value>\d+) (?<highest_trackable_value>\d+) (?<unit_magnitude>\d+) (?<significant_figures>\d+) (?<sub_bucket_half_count_magnitude>\d+) (?<sub_bucket_half_count>\d+) (?<sub_bucket_mask>\d+) (?<sub_bucket_count>\d+) (?<bucket_count>\d+) (?<min_value>\d+) (?<max_value>\d+) (?<normalizing_index_offset>\d+) (?<conversion_ratio>\S+) (?<counts_len>\d+) (?<total_count>\d+) \[(?<counts>([~!@#$%^&*]?\d+ )+)\]( \((?<unit>.*) (?<multiplier>\S+)\))?/
     
     m = str.match regex
     
     raise HDRHistogramError, "invalid serialization pattern" if m.nil?
     
     opt[:unserialized]=m
+    multiplier = opt[:multiplier] || 1
     
-    low = m[:lowest_trackable_value].to_i * (opt[:multiplier] || 1)
-    high = m[:highest_trackable_value].to_i * (opt[:multiplier] || 1)
+    low = m[:lowest_trackable_value].to_i * multiplier
+    high = m[:highest_trackable_value].to_i * multiplier
     hdrh = self.new(low, high, m[:significant_figures].to_i, opt)
     
     return hdrh

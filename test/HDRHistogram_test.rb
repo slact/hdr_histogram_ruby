@@ -26,7 +26,7 @@ class HDRHistogramTest < Minitest::Test
       HDRHistogram.unserialize("banana")
     end
     
-    hdr = HDRHistogram.unserialize(str, unit: "ms", multiplier: 0.001)
+    hdr = HDRHistogram.unserialize(str)
     
     assert_equal hdr.serialize, str
     #assert_equal(hdr.stats, " 10.000%        0.032ms\n 20.000%        0.045ms\n 30.000%        0.049ms\n 40.000%        0.062ms\n 50.000%        0.089ms\n 60.000%        0.102ms\n 70.000%        0.123ms\n 80.000%        0.136ms\n 90.000%        0.152ms\n100.000%        0.239ms\n")
@@ -34,13 +34,29 @@ class HDRHistogramTest < Minitest::Test
     #binding.pry
     
     assert_equal hdr.count, 240000
-    assert_in_epsilon hdr.min, 0.118
-    assert_in_epsilon hdr.mean, 4.092
-    assert_in_epsilon hdr.percentile(99), 8.727
-    assert_in_epsilon hdr.stddev, 2.137
+    assert_in_epsilon hdr.min, 118
+    assert_in_epsilon hdr.mean, 4092
+    assert_in_epsilon hdr.percentile(99), 8727
+    assert_in_epsilon hdr.stddev, 2137
   end
 
-  def test_hdr
-
+  def test_hdr_serialize
+    hdr = HDRHistogram.new(0.001,1000, 3, multiplier: 0.001, unit: :ms)
+    hdr.record 10
+    hdr.record 50
+    hdr.record 150
+    hdr.record 10
+    hdr.record 11
+    hdr.record 9
+    hdr.record 1200
+    
+    serialized = hdr.serialize
+    hdr2 = HDRHistogram.unserialize(serialized)
+    assert_equal serialized, hdr2.serialize
+    assert_in_epsilon hdr.min, hdr2.min
+    assert_in_epsilon hdr.mean, hdr2.mean
+    assert_in_epsilon hdr.percentile(99), hdr2.percentile(99)
+    assert_in_epsilon hdr.stddev, hdr2.stddev
+  end
   end
 end

@@ -77,8 +77,9 @@ Create new HDRHistogram object.
 - `significant_figures`: The level of precision for this histogram, i.e. the number of figures in a decimal number that will be maintained.  E.g. a value of 3 will mean the results from the histogram will be accurate up to the first three digits. Must be a value between 1 and 5 (inclusive).
 - `:multiplier`: A multiplier to adjust all incoming values. If present, the raw value recorded in the histogram for `record(val)` will be `val * 1/multiplier`. Similarly, `percentile(pctl) => val * multiplier`. If `multiplier` < 1, `lowest_value` can be < 1 so that `lowest_value` * 1/`multiplier` == 1.
 - `:unit`: A unit for labeling histogram values. Useful for outputting things.
-  
-  
+
+#### `hdr = HDRHistogram.unserialize(serialized_histogram_string)`
+restore an HDRHistogram object and its data from serialized string.
 
 #### `hdr.record(value)`
 Records a `value` in the histogram, will round this `value` of to a precision at or better than the `significant_figures` specified at construction time.  
@@ -146,4 +147,9 @@ Get a formatted string with percentile stats of the histogram useful for latency
 #  99.999%     1000.447ms
 # 100.000%     1000.447ms
 ```
+
 The above output assumes a :multiplier of 0.001 and a :unit of `:ms`
+
+#### `hdr.serialize`
+serialize the HDRHistogram object and data into a string
+

@@ -41,6 +41,61 @@ static VALUE histogram_new(int argc, VALUE* argv, VALUE class) {
   return self;
 }
 
+static VALUE histogram_clone(VALUE self_src) {
+  GET_HDRHIST(hdr_src, self_src);
+  VALUE                    self;
+  struct hdr_histogram    *hdrh;
+  int                      ret, i;
+  ret = hdr_init(hdr_src->lowest_trackable_value, hdr_src->highest_trackable_value, hdr_src->significant_figures, &hdrh);
+  if(ret == EINVAL) {
+    rb_raise(HDRHistogramError, "%s", "lowest_trackable_value must be >= 1");
+  }
+  else if(ret == ENOMEM) {
+    rb_raise(HDRHistogramError, "%s", "no memory");
+  }
+  else if(hdr_src->counts_len != hdrh->counts_len) {
+    rb_raise(HDRHistogramError, "%s", "bad hdrhistogram ccopy");
+  }
+  self = Data_Wrap_Struct(HDRHistogram, NULL, histogram_free, hdrh);
+  
+  hdrh->lowest_trackable_value = hdr_src->lowest_trackable_value;
+  hdrh->highest_trackable_value = hdr_src->highest_trackable_value;
+  hdrh->unit_magnitude = hdr_src->unit_magnitude;
+  hdrh->significant_figures = hdr_src->significant_figures;
+  hdrh->sub_bucket_half_count_magnitude = hdr_src->sub_bucket_half_count_magnitude;
+  hdrh->sub_bucket_half_count = hdr_src->sub_bucket_half_count;
+  hdrh->sub_bucket_mask = hdr_src->sub_bucket_mask;
+  hdrh->sub_bucket_count = hdr_src->sub_bucket_count;
+  hdrh->bucket_count = hdr_src->bucket_count;
+  hdrh->min_value = hdr_src->min_value;
+  hdrh->max_value = hdr_src->max_value;
+  hdrh->normalizing_index_offset = hdr_src->normalizing_index_offset;
+  hdrh->conversion_ratio = hdr_src->conversion_ratio;
+  hdrh->counts_len = hdr_src->counts_len;
+  hdrh->total_count = hdr_src->total_count;
+  
+  for(i=0; i<hdrh->counts_len; i++) {
+    hdrh->counts[i] = hdr_src->counts[i];
+  }
+  
+  VALUE lowest = INT2NUM(hdr_src->lowest_trackable_value);
+  VALUE highest = INT2NUM(hdr_src->highest_trackable_value);
+  VALUE sig = INT2NUM(hdr_src->significant_figures);
+  VALUE opt = rb_hash_new();
+  rb_hash_aset(opt, rb_intern("multiplier"), rb_iv_get(self, "@multiplier"));
+  rb_hash_aset(opt, rb_intern("unit"), rb_iv_get(self, "@unit"));
+  
+  VALUE argv[4];
+  VALUE argc = 4;
+  argv[0]=lowest;
+  argv[1]=highest;
+  argv[2]=sig;
+  argv[3]=opt;
+  
+  rb_obj_call_init(self, argc, argv);
+  return self;
+}
+
 static VALUE histogram_reset(VALUE self) {
   GET_HDRHIST(hdr, self);
   hdr_reset(hdr);
@@ -167,6 +222,9 @@ void Init_ruby_hdr_histogram() {
   rb_define_method(HDRHistogram, "reset", histogram_reset, 0);
   rb_define_method(HDRHistogram, "memsize", histogram_memsize, 0);
   rb_define_method(HDRHistogram, "count", histogram_count, 0);
+  
+  rb_define_method(HDRHistogram, "clone", histogram_clone, 0);
+  rb_define_method(HDRHistogram, "dup", histogram_clone, 0);
   
   rb_define_private_method(HDRHistogram, "raw_record", histogram_record_value, 1);
   rb_define_private_method(HDRHistogram, "raw_record_corrected", histogram_record_corrected_value, 2);

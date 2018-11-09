@@ -61,7 +61,7 @@ class HDRHistogramTest < Minitest::Test
   end
   
   def test_dup
-    hdr = HDRHistogram.new(1, 3600, 3)
+    hdr = HDRHistogram.new(1, 3600, 3, multiplier: 0.001, unit: :ms)
     hdr.record 11
     hdr.record 101
     hdr.record 22
@@ -85,10 +85,5 @@ class HDRHistogramTest < Minitest::Test
     
     assert(hdr.serialize != hdr2.serialize)
     assert(hdr.serialize != hdr3.serialize)
-  end
-  
-  def test_clone
-    hdr = HDRHistogram.new(1, 3600, 3)
-    hdr.clone.percentile(99)
   end
 end

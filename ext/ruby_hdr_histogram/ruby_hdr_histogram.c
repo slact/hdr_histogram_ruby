@@ -82,8 +82,8 @@ static VALUE histogram_clone(VALUE self_src) {
   VALUE highest = INT2NUM(hdr_src->highest_trackable_value);
   VALUE sig = INT2NUM(hdr_src->significant_figures);
   VALUE opt = rb_hash_new();
-  rb_hash_aset(opt, rb_intern("multiplier"), rb_iv_get(self, "@multiplier"));
-  rb_hash_aset(opt, rb_intern("unit"), rb_iv_get(self, "@unit"));
+  rb_hash_aset(opt, ID2SYM(rb_intern("multiplier")), rb_iv_get(self_src, "@multiplier"));
+  rb_hash_aset(opt, ID2SYM(rb_intern("unit")), rb_iv_get(self_src, "@unit"));
   
   VALUE argv[4];
   VALUE argc = 4;

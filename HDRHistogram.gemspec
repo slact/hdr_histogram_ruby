@@ -33,4 +33,10 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rake-compiler"
   spec.add_development_dependency "minitest", "~> 5.0"
   spec.add_development_dependency "pry"
+  spec.add_development_dependency 'pry-byebug'
+  spec.add_development_dependency 'pry-doc'
+  spec.add_development_dependency 'pry-inline'
+  spec.add_development_dependency 'pry-rescue'
+  spec.add_development_dependency 'pry-stack_explorer'
+  spec.add_development_dependency 'pry-state'
 end

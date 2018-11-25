@@ -148,7 +148,7 @@ class HDRHistogram
   private_class_method :adjusted_boundary_val
   
   def self.unserialize(str, opt={})
-    regex = /^(?<lowest_trackable_value>\d+) (?<highest_trackable_value>\d+) (?<unit_magnitude>\d+) (?<significant_figures>\d+) (?<sub_bucket_half_count_magnitude>\d+) (?<sub_bucket_half_count>\d+) (?<sub_bucket_mask>\d+) (?<sub_bucket_count>\d+) (?<bucket_count>\d+) (?<min_value>\d+) (?<max_value>\d+) (?<normalizing_index_offset>\d+) (?<conversion_ratio>\S+) (?<counts_len>\d+) (?<total_count>\d+) \[(?<counts>([~!@#$%^&*]?\d+ )+)\]( \((?<unit>.*) (?<multiplier>\S+)\))?/
+    regex = /^(?<lowest_trackable_value>\d+) (?<highest_trackable_value>\d+) (?<unit_magnitude>\d+) (?<significant_figures>\d+) (?<sub_bucket_half_count_magnitude>\d+) (?<sub_bucket_half_count>\d+) (?<sub_bucket_mask>\d+) (?<sub_bucket_count>\d+) (?<bucket_count>\d+) (?<min_value>-?\d+) (?<max_value>\d+) (?<normalizing_index_offset>\d+) (?<conversion_ratio>\S+) (?<counts_len>\d+) (?<total_count>\d+) \[(?<counts>([~!@#$%^&*]?\d+ )+)\]( \((?<unit>.*) (?<multiplier>\S+)\))?/
     
     m = str.match regex
     
